@@ -1,16 +1,22 @@
 ﻿@page "/"
 
+@inject JsonToCsvConverterService JsonToCsvConverterService
+
 <PageTitle>Home</PageTitle>
 
 <MudTextField @ref="jsonTextField"
-              T="string"
-              Label="JSON"
-              Lines="3"
-              Variant="Variant.Outlined"
-              Text="@jsonText" />
+    T="string"
+    Label="JSON"
+    Lines="3"
+    Variant="Variant.Outlined"
+    Text="@jsonText" />
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ConvertToCsv">Convert</MudButton>
 
 @code
 {
     private MudTextField<string> jsonTextField;
     private string jsonText;
+
+    private void ConvertToCsv() => JsonToCsvConverterService.Convert(jsonText);
 }
