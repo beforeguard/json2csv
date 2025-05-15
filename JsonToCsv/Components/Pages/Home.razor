@@ -9,8 +9,15 @@
               Variant="Variant.Outlined"
               Text="@jsonText" />
 
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ConvertToCsv">Convert</MudButton>
+
 @code
 {
     private MudTextField<string> jsonTextField;
     private string jsonText;
+
+    private void ConvertToCsv()
+    {
+        Console.WriteLine("Converting JSON to CSV...");
+    }
 }
