@@ -2,6 +2,15 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<MudTextField @ref="jsonTextField"
+              T="string"
+              Label="JSON"
+              Lines="3"
+              Variant="Variant.Outlined"
+              Text="@jsonText" />
 
-Welcome to your new app.
+@code
+{
+    private MudTextField<string> jsonTextField;
+    private string jsonText;
+}
