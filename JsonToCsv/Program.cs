@@ -1,10 +1,12 @@
 using JsonToCsv.Components;
+using JsonToCsv.Services;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services
+    .AddScoped<JsonToCsvConverterService>()
     .AddMudServices()
     .AddRazorComponents()
     .AddInteractiveServerComponents();
