@@ -3,13 +3,30 @@ using System.Text.Json;
 
 namespace JsonToCsv.Services
 {
-    public class JsonToCsvConverterService
+    public class JsonConverterService
     {
-        public string Convert(string json)
+        public string ConvertToCsv(string json)
         {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                throw new ArgumentException(
+                    paramName: nameof(json),
+                    message: $"{nameof(json)} cannot be null or empty.");
+            }
+
             var stringBuilder = new StringBuilder();
 
-            var document = JsonDocument.Parse(json);
+            JsonDocument document;
+            try
+            {
+                document = JsonDocument.Parse(json);
+            }
+            catch
+            {
+                throw new ArgumentException(
+                    paramName: nameof(json),
+                    message: $"{nameof(json)} is not valid.");
+            }
 
             if (document.RootElement.ValueKind == JsonValueKind.Array)
             {

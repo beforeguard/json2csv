@@ -1,6 +1,6 @@
 ﻿@page "/"
 
-@inject JsonToCsvConverterService JsonToCsvConverterService
+@inject JsonConverterService JsonConverterService
 
 <PageTitle>Home</PageTitle>
 
@@ -23,5 +23,5 @@
     private MudTextField<string> jsonTextField;
     private MudTextField<string> csvTextField;
 
-    private async Task ConvertToCsvAsync() => await csvTextField.SetText(JsonToCsvConverterService.Convert(jsonTextField.Text));
+    private async Task ConvertToCsvAsync() => await csvTextField.SetText(JsonConverterService.ConvertToCsv(jsonTextField.Text));
 }
