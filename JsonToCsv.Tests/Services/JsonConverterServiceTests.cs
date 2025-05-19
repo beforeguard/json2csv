@@ -42,5 +42,18 @@ namespace JsonToCsv.Tests.Services
                 .Throw<ArgumentException>()
                 .WithMessage($"{nameof(json)} is not valid.*");
         }
+
+        [Fact]
+        public void ConvertToJson_Should_ThrowException_When_JsonContainsNestedObject()
+        {
+            var json = "[{\"Name\":\"John\",\"Age\":30,\"Object\":{}}]";
+
+            var convert = () => _jsonToCsvConverterService.ConvertToCsv(json);
+
+            convert
+                .Should()
+                .Throw<ArgumentException>()
+                .WithMessage($"{nameof(json)} is cannot contain nested objects.*");
+        }
     }
 }

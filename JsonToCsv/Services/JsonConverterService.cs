@@ -40,6 +40,13 @@ namespace JsonToCsv.Services
                             stringBuilder.AppendLine(string.Join(",", properties.Select(p => p.Name)));
                         }
 
+                        if (properties.Any(p => p.Value.ValueKind == JsonValueKind.Object))
+                        {
+                            throw new ArgumentException(
+                                paramName: nameof(json),
+                                message: $"{nameof(json)} is cannot contain nested objects.");
+                        }
+
                         stringBuilder.AppendLine(string.Join(",", properties.Select(p => p.Value.ToString())));
                     }
                 }
