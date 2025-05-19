@@ -5,18 +5,20 @@
 <PageTitle>Home</PageTitle>
 
 <MudTextField @ref="jsonTextField"
-T="string"
-Label="JSON"
-Lines="3"
-Variant="Variant.Outlined" />
+              T="string"
+              Label="JSON"
+              Lines="3"
+              Variant="Variant.Outlined" />
 
 <MudTextField @ref="csvTextField"
-T="string"
-Label="CSV"
-Lines="3"
-Variant="Variant.Outlined" />
+              T="string"
+              Label="CSV"
+              Lines="3"
+              ReadOnly="true"
+              Variant="Variant.Outlined" />
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ConvertToCsvAsync">Convert</MudButton>
+<MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@ClearAsync">Clear</MudButton>
 
 @code
 {
@@ -35,5 +37,11 @@ Variant="Variant.Outlined" />
             csvTextField.SetText($"Error: {ex.Message}");
             csvTextField.Error = true;
         }
+    }
+
+    private async Task ClearAsync()
+    {
+        await jsonTextField.SetText(string.Empty);
+        await csvTextField.SetText(string.Empty);
     }
 }
