@@ -5,17 +5,27 @@
 <PageTitle>Home</PageTitle>
 
 <MudTextField @ref="jsonTextField"
-              T="string"
-              Label="JSON"
-              Lines="3"
-              Variant="Variant.Outlined" />
+T="string"
+Label="JSON"
+Lines="3"
+Variant="Variant.Outlined" />
 
 <MudTextField @ref="csvTextField"
-              T="string"
-              Label="CSV"
-              Lines="3"
-              ReadOnly="true"
-              Variant="Variant.Outlined" />
+T="string"
+Label="CSV"
+Lines="3"
+ReadOnly="true"
+Variant="Variant.Outlined" />
+
+<MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles" Accept=".json">
+    <ActivatorContent>
+        <MudButton Variant="Variant.Filled"
+        Color="Color.Primary"
+        StartIcon="@Icons.Material.Filled.CloudUpload">
+            Upload JSON File
+        </MudButton>
+    </ActivatorContent>
+</MudFileUpload>
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ConvertToCsvAsync">Convert</MudButton>
 <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@ClearAsync">Clear</MudButton>
@@ -36,6 +46,7 @@
         {
             csvTextField.SetText($"Error: {ex.Message}");
             csvTextField.Error = true;
+            await Task.CompletedTask;
         }
     }
 
@@ -43,5 +54,9 @@
     {
         await jsonTextField.SetText(string.Empty);
         await csvTextField.SetText(string.Empty);
+    }
+
+    private void UploadFiles(IBrowserFile file)
+    {
     }
 }
