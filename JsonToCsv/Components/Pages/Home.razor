@@ -17,7 +17,7 @@ Lines="3"
 ReadOnly="true"
 Variant="Variant.Outlined" />
 
-<MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles" Accept=".json">
+<MudFileUpload T="IBrowserFile" FilesChanged="UploadJsonFile" Accept=".json">
     <ActivatorContent>
         <MudButton Variant="Variant.Filled"
         Color="Color.Primary"
@@ -35,12 +35,14 @@ Variant="Variant.Outlined" />
     private MudTextField<string> jsonTextField;
     private MudTextField<string> csvTextField;
 
-    private async Task ConvertToCsvAsync()
+    private async Task ConvertToCsvAsync() => await ConvertJsonAndSetCsvText(jsonTextField.Text);
+
+    private async Task ConvertJsonAndSetCsvText(string json)
     {
         try
         {
             csvTextField.Error = false;
-            await csvTextField.SetText(JsonConverterService.ConvertToCsv(jsonTextField.Text));
+            await csvTextField.SetText(JsonConverterService.ConvertToCsv(json));
         }
         catch (Exception ex)
         {
@@ -56,7 +58,9 @@ Variant="Variant.Outlined" />
         await csvTextField.SetText(string.Empty);
     }
 
-    private void UploadFiles(IBrowserFile file)
+    private async Task UploadJsonFile(IBrowserFile file)
     {
+        using var streamReader = new StreamReader(file.OpenReadStream());
+        await jsonTextField.SetText(await streamReader.ReadToEndAsync());
     }
 }
