@@ -5,17 +5,27 @@
 <PageTitle>Home</PageTitle>
 
 <MudTextField @ref="jsonTextField"
-              T="string"
-              Label="JSON"
-              Lines="3"
-              Variant="Variant.Outlined" />
+T="string"
+Label="JSON"
+Lines="3"
+Variant="Variant.Outlined" />
 
 <MudTextField @ref="csvTextField"
-              T="string"
-              Label="CSV"
-              Lines="3"
-              ReadOnly="true"
-              Variant="Variant.Outlined" />
+T="string"
+Label="CSV"
+Lines="3"
+ReadOnly="true"
+Variant="Variant.Outlined" />
+
+<MudFileUpload T="IBrowserFile" FilesChanged="UploadJsonFile" Accept=".json">
+    <ActivatorContent>
+        <MudButton Variant="Variant.Filled"
+        Color="Color.Primary"
+        StartIcon="@Icons.Material.Filled.CloudUpload">
+            Upload JSON File
+        </MudButton>
+    </ActivatorContent>
+</MudFileUpload>
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ConvertToCsvAsync">Convert</MudButton>
 <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@ClearAsync">Clear</MudButton>
@@ -25,17 +35,20 @@
     private MudTextField<string> jsonTextField;
     private MudTextField<string> csvTextField;
 
-    private async Task ConvertToCsvAsync()
+    private async Task ConvertToCsvAsync() => await ConvertJsonAndSetCsvText(jsonTextField.Text);
+
+    private async Task ConvertJsonAndSetCsvText(string json)
     {
         try
         {
             csvTextField.Error = false;
-            await csvTextField.SetText(JsonConverterService.ConvertToCsv(jsonTextField.Text));
+            await csvTextField.SetText(JsonConverterService.ConvertToCsv(json));
         }
         catch (Exception ex)
         {
             csvTextField.SetText($"Error: {ex.Message}");
             csvTextField.Error = true;
+            await Task.CompletedTask;
         }
     }
 
@@ -43,5 +56,11 @@
     {
         await jsonTextField.SetText(string.Empty);
         await csvTextField.SetText(string.Empty);
+    }
+
+    private async Task UploadJsonFile(IBrowserFile file)
+    {
+        using var streamReader = new StreamReader(file.OpenReadStream());
+        await jsonTextField.SetText(await streamReader.ReadToEndAsync());
     }
 }
