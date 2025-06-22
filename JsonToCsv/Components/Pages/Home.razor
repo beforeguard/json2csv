@@ -4,63 +4,72 @@
 
 <PageTitle>Home</PageTitle>
 
-<MudTextField @ref="jsonTextField"
-T="string"
-Label="JSON"
-Lines="3"
-Variant="Variant.Outlined" />
+<MudStack>
+    <MudText Typo="Typo.h4" GutterBottom="true">JSON to CSV Converter</MudText>
+    <MudStack>
+        <MudTextField @ref="_jsonTextField"
+                      T="string"
+                      Label="JSON"
+                      Lines="3"
+                      Variant="Variant.Outlined" />
 
-<MudTextField @ref="csvTextField"
-T="string"
-Label="CSV"
-Lines="3"
-ReadOnly="true"
-Variant="Variant.Outlined" />
+        <MudTextField @ref="_csvTextField"
+                      T="string"
+                      Label="CSV"
+                      Lines="3"
+                      ReadOnly="true"
+                      Variant="Variant.Outlined"
+                      Error="@_csvError"
+                      ErrorText="@_csvErrorText"/>
+    </MudStack>
 
-<MudFileUpload T="IBrowserFile" FilesChanged="UploadJsonFile" Accept=".json">
-    <ActivatorContent>
-        <MudButton Variant="Variant.Filled"
-        Color="Color.Primary"
-        StartIcon="@Icons.Material.Filled.CloudUpload">
-            Upload JSON File
-        </MudButton>
-    </ActivatorContent>
-</MudFileUpload>
+    <MudStack Row="true">
+        <MudTextField @ref="_csvFilePathTextField"
+                      T="string"
+                      Label="CSV File Path"
+                      Variant="Variant.Outlined" />
+    </MudStack>
 
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ConvertToCsvAsync">Convert</MudButton>
-<MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@ClearAsync">Clear</MudButton>
+    <MudStack Row="true">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ConvertToCsvAsync">Convert</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@ClearAsync">Clear</MudButton>
+    </MudStack>
+</MudStack>
 
 @code
 {
-    private MudTextField<string> jsonTextField;
-    private MudTextField<string> csvTextField;
+    private MudTextField<string> _jsonTextField;
+    private MudTextField<string> _csvTextField;
+    private MudTextField<string> _csvFilePathTextField;
+    private bool _csvError;
+    private string _csvErrorText;
 
-    private async Task ConvertToCsvAsync() => await ConvertJsonAndSetCsvText(jsonTextField.Text);
+    private async Task ConvertToCsvAsync() => await ConvertJsonAndSetCsvText(_jsonTextField.Text);
 
     private async Task ConvertJsonAndSetCsvText(string json)
     {
         try
         {
-            csvTextField.Error = false;
-            await csvTextField.SetText(JsonConverterService.ConvertToCsv(json));
+            _csvError = false;
+            await _csvTextField.SetText(JsonConverterService.ConvertToCsv(json));
         }
         catch (Exception ex)
         {
-            csvTextField.SetText($"Error: {ex.Message}");
-            csvTextField.Error = true;
+            _csvErrorText = $"Error: {ex.Message}";
+            _csvError = true;
             await Task.CompletedTask;
         }
     }
 
     private async Task ClearAsync()
     {
-        await jsonTextField.SetText(string.Empty);
-        await csvTextField.SetText(string.Empty);
+        await _jsonTextField.SetText(string.Empty);
+        await _csvTextField.SetText(string.Empty);
     }
 
     private async Task UploadJsonFile(IBrowserFile file)
     {
         using var streamReader = new StreamReader(file.OpenReadStream());
-        await jsonTextField.SetText(await streamReader.ReadToEndAsync());
+        await _jsonTextField.SetText(await streamReader.ReadToEndAsync());
     }
 }
