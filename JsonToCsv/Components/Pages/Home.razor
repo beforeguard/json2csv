@@ -1,10 +1,11 @@
 ﻿@page "/"
 @using System.Text
 
-@inject JsonConverterService JsonConverterService
+@inject ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
+@inject JsonConverterService JsonConverterService
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Json2Csv</PageTitle>
 
 <MudStack>
     <MudText Typo="Typo.h4" GutterBottom="true">JSON to CSV Converter</MudText>
@@ -22,7 +23,9 @@
                       Label="CSV"
                       Lines="3"
                       ReadOnly="true"
-                      Variant="Variant.Outlined" />
+                      Variant="Variant.Outlined"
+                      Error="@_csvError"
+                      ErrorText="@_csvErrorText" />
     </MudStack>
 
     <MudStack Row="true">
@@ -42,7 +45,9 @@
         <MudTextField @ref="_csvFileNameTextField"
                       T="string"
                       Label="CSV File Name"
-                      Variant="Variant.Outlined" />
+                      Variant="Variant.Outlined"
+                      Error="@_csvFileNameError"
+                      ErrorText="@_csvFileNameErrorText" />
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@SaveCsvFileAsync">Save</MudButton>
     </MudStack>
 </MudStack>
@@ -50,10 +55,16 @@
 @code
 {
     private MudTextField<string> _jsonTextField;
-    private MudTextField<string> _csvTextField;
-    private MudTextField<string> _csvFileNameTextField;
     private bool _jsonError;
     private string _jsonErrorText;
+
+    private MudTextField<string> _csvTextField;
+    private bool _csvError;
+    private string _csvErrorText;
+
+    private MudTextField<string> _csvFileNameTextField;
+    private bool _csvFileNameError;
+    private string _csvFileNameErrorText;
 
     private async Task ConvertToCsvAsync() => await ConvertJsonAndSetCsvText(_jsonTextField.Text);
 
@@ -86,8 +97,28 @@
 
     private async Task SaveCsvFileAsync()
     {
-        var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(_csvTextField.Text));
-        using var dotNetStream = new DotNetStreamReference(stream: fileStream);
-        await JSRuntime.InvokeVoidAsync("downloadFileFromStream", _csvFileNameTextField.Text, dotNetStream);
+        if (string.IsNullOrEmpty(_csvTextField.Text))
+        {
+            _csvErrorText = "CSV text is empty.";
+            _csvError = true;
+            return;
+        }
+        else if (string.IsNullOrEmpty(_csvFileNameTextField.Text))
+        {
+            _csvFileNameErrorText = "CSV file name is empty.";
+            _csvFileNameError = true;
+            return;
+        }
+
+        try
+        {
+            var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(_csvTextField.Text));
+            using var dotNetStream = new DotNetStreamReference(stream: fileStream);
+            await JSRuntime.InvokeVoidAsync("downloadFileFromStream", _csvFileNameTextField.Text, dotNetStream);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving CSV file: {ex.Message}", Severity.Error);
+        }
     }
 }
