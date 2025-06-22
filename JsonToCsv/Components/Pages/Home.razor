@@ -1,6 +1,8 @@
 ﻿@page "/"
+@using System.Text
 
 @inject JsonConverterService JsonConverterService
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Home</PageTitle>
 
@@ -11,28 +13,37 @@
                       T="string"
                       Label="JSON"
                       Lines="3"
-                      Variant="Variant.Outlined" />
+                      Variant="Variant.Outlined"
+                      Error="@_jsonError"
+                      ErrorText="@_jsonErrorText" />
 
         <MudTextField @ref="_csvTextField"
                       T="string"
                       Label="CSV"
                       Lines="3"
                       ReadOnly="true"
-                      Variant="Variant.Outlined"
-                      Error="@_csvError"
-                      ErrorText="@_csvErrorText"/>
-    </MudStack>
-
-    <MudStack Row="true">
-        <MudTextField @ref="_csvFilePathTextField"
-                      T="string"
-                      Label="CSV File Path"
                       Variant="Variant.Outlined" />
     </MudStack>
 
     <MudStack Row="true">
+        <MudFileUpload T="IBrowserFile" FilesChanged="UploadJsonFile" Accept=".json">
+            <ActivatorContent>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.CloudUpload">
+                    Upload JSON File
+                </MudButton>
+            </ActivatorContent>
+        </MudFileUpload>
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ConvertToCsvAsync">Convert</MudButton>
         <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@ClearAsync">Clear</MudButton>
+    </MudStack>
+    <MudStack>
+        <MudTextField @ref="_csvFileNameTextField"
+                      T="string"
+                      Label="CSV File Name"
+                      Variant="Variant.Outlined" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@SaveCsvFileAsync">Save</MudButton>
     </MudStack>
 </MudStack>
 
@@ -40,9 +51,9 @@
 {
     private MudTextField<string> _jsonTextField;
     private MudTextField<string> _csvTextField;
-    private MudTextField<string> _csvFilePathTextField;
-    private bool _csvError;
-    private string _csvErrorText;
+    private MudTextField<string> _csvFileNameTextField;
+    private bool _jsonError;
+    private string _jsonErrorText;
 
     private async Task ConvertToCsvAsync() => await ConvertJsonAndSetCsvText(_jsonTextField.Text);
 
@@ -50,13 +61,13 @@
     {
         try
         {
-            _csvError = false;
+            _jsonError = false;
             await _csvTextField.SetText(JsonConverterService.ConvertToCsv(json));
         }
         catch (Exception ex)
         {
-            _csvErrorText = $"Error: {ex.Message}";
-            _csvError = true;
+            _jsonErrorText = $"Error: {ex.Message}";
+            _jsonError = true;
             await Task.CompletedTask;
         }
     }
@@ -71,5 +82,12 @@
     {
         using var streamReader = new StreamReader(file.OpenReadStream());
         await _jsonTextField.SetText(await streamReader.ReadToEndAsync());
+    }
+
+    private async Task SaveCsvFileAsync()
+    {
+        var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(_csvTextField.Text));
+        using var dotNetStream = new DotNetStreamReference(stream: fileStream);
+        await JSRuntime.InvokeVoidAsync("downloadFileFromStream", _csvFileNameTextField.Text, dotNetStream);
     }
 }
