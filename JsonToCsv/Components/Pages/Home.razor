@@ -11,23 +11,24 @@
                       T="string"
                       Label="JSON"
                       Lines="3"
-                      Variant="Variant.Outlined" />
+                      Variant="Variant.Outlined"
+                      Error="@_jsonError"
+                      ErrorText="@_jsonErrorText" />
 
         <MudTextField @ref="_csvTextField"
                       T="string"
                       Label="CSV"
                       Lines="3"
                       ReadOnly="true"
-                      Variant="Variant.Outlined"
-                      Error="@_csvError"
-                      ErrorText="@_csvErrorText"/>
+                      Variant="Variant.Outlined" />
     </MudStack>
 
     <MudStack Row="true">
-        <MudTextField @ref="_csvFilePathTextField"
+        <MudTextField @ref="_jsonFilePathTextField"
                       T="string"
                       Label="CSV File Path"
                       Variant="Variant.Outlined" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@OpenCsvFileAsync">Open</MudButton>
     </MudStack>
 
     <MudStack Row="true">
@@ -40,9 +41,14 @@
 {
     private MudTextField<string> _jsonTextField;
     private MudTextField<string> _csvTextField;
-    private MudTextField<string> _csvFilePathTextField;
-    private bool _csvError;
-    private string _csvErrorText;
+    private MudTextField<string> _jsonFilePathTextField;
+    private bool _jsonError;
+    private string _jsonErrorText;
+
+    private async Task OpenCsvFileAsync()
+    {
+        await Task.CompletedTask;
+    }
 
     private async Task ConvertToCsvAsync() => await ConvertJsonAndSetCsvText(_jsonTextField.Text);
 
@@ -50,13 +56,13 @@
     {
         try
         {
-            _csvError = false;
+            _jsonError = false;
             await _csvTextField.SetText(JsonConverterService.ConvertToCsv(json));
         }
         catch (Exception ex)
         {
-            _csvErrorText = $"Error: {ex.Message}";
-            _csvError = true;
+            _jsonErrorText = $"Error: {ex.Message}";
+            _jsonError = true;
             await Task.CompletedTask;
         }
     }
