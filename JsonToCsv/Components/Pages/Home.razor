@@ -7,22 +7,24 @@
 <MudStack>
     <MudText Typo="Typo.h4" GutterBottom="true">JSON to CSV Converter</MudText>
     <MudStack>
-        <MudTextField @ref="jsonTextField"
+        <MudTextField @ref="_jsonTextField"
                       T="string"
                       Label="JSON"
                       Lines="3"
                       Variant="Variant.Outlined" />
 
-        <MudTextField @ref="csvTextField"
+        <MudTextField @ref="_csvTextField"
                       T="string"
                       Label="CSV"
                       Lines="3"
                       ReadOnly="true"
-                      Variant="Variant.Outlined" />
+                      Variant="Variant.Outlined"
+                      Error="@_csvError"
+                      ErrorText="@_csvErrorText"/>
     </MudStack>
 
     <MudStack Row="true">
-        <MudTextField @ref="csvFilePathTextField"
+        <MudTextField @ref="_csvFilePathTextField"
                       T="string"
                       Label="CSV File Path"
                       Variant="Variant.Outlined" />
@@ -36,36 +38,38 @@
 
 @code
 {
-    private MudTextField<string> jsonTextField;
-    private MudTextField<string> csvTextField;
-    private MudTextField<string> csvFilePathTextField;
+    private MudTextField<string> _jsonTextField;
+    private MudTextField<string> _csvTextField;
+    private MudTextField<string> _csvFilePathTextField;
+    private bool _csvError;
+    private string _csvErrorText;
 
-    private async Task ConvertToCsvAsync() => await ConvertJsonAndSetCsvText(jsonTextField.Text);
+    private async Task ConvertToCsvAsync() => await ConvertJsonAndSetCsvText(_jsonTextField.Text);
 
     private async Task ConvertJsonAndSetCsvText(string json)
     {
         try
         {
-            csvTextField.Error = false;
-            await csvTextField.SetText(JsonConverterService.ConvertToCsv(json));
+            _csvError = false;
+            await _csvTextField.SetText(JsonConverterService.ConvertToCsv(json));
         }
         catch (Exception ex)
         {
-            await csvTextField.SetText($"Error: {ex.Message}");
-            csvTextField.Error = true;
+            _csvErrorText = $"Error: {ex.Message}";
+            _csvError = true;
             await Task.CompletedTask;
         }
     }
 
     private async Task ClearAsync()
     {
-        await jsonTextField.SetText(string.Empty);
-        await csvTextField.SetText(string.Empty);
+        await _jsonTextField.SetText(string.Empty);
+        await _csvTextField.SetText(string.Empty);
     }
 
     private async Task UploadJsonFile(IBrowserFile file)
     {
         using var streamReader = new StreamReader(file.OpenReadStream());
-        await jsonTextField.SetText(await streamReader.ReadToEndAsync());
+        await _jsonTextField.SetText(await streamReader.ReadToEndAsync());
     }
 }
