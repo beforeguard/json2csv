@@ -39,9 +39,9 @@
         <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@ClearAsync">Clear</MudButton>
     </MudStack>
     <MudStack>
-        <MudTextField @ref="_csvFilePathTextField"
+        <MudTextField @ref="_csvFileNameTextField"
                       T="string"
-                      Label="CSV File Path"
+                      Label="CSV File Name"
                       Variant="Variant.Outlined" />
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@SaveCsvFileAsync">Save</MudButton>
     </MudStack>
@@ -51,7 +51,7 @@
 {
     private MudTextField<string> _jsonTextField;
     private MudTextField<string> _csvTextField;
-    private MudTextField<string> _csvFilePathTextField;
+    private MudTextField<string> _csvFileNameTextField;
     private bool _jsonError;
     private string _jsonErrorText;
 
@@ -88,6 +88,6 @@
     {
         var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(_csvTextField.Text));
         using var dotNetStream = new DotNetStreamReference(stream: fileStream);
-        await JSRuntime.InvokeVoidAsync("downloadFileFromStream", _csvFilePathTextField.Text, dotNetStream);
+        await JSRuntime.InvokeVoidAsync("downloadFileFromStream", _csvFileNameTextField.Text, dotNetStream);
     }
 }
