@@ -24,14 +24,15 @@
     </MudStack>
 
     <MudStack Row="true">
-        <MudTextField @ref="_jsonFilePathTextField"
-                      T="string"
-                      Label="CSV File Path"
-                      Variant="Variant.Outlined" />
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@OpenCsvFileAsync">Open</MudButton>
-    </MudStack>
-
-    <MudStack Row="true">
+        <MudFileUpload T="IBrowserFile" FilesChanged="UploadJsonFile" Accept=".json">
+            <ActivatorContent>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.CloudUpload">
+                    Upload JSON File
+                </MudButton>
+            </ActivatorContent>
+        </MudFileUpload>
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ConvertToCsvAsync">Convert</MudButton>
         <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@ClearAsync">Clear</MudButton>
     </MudStack>
