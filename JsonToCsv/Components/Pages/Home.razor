@@ -1,6 +1,8 @@
 ﻿@page "/"
+@using System.Text
 
 @inject JsonConverterService JsonConverterService
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Home</PageTitle>
 
@@ -36,20 +38,22 @@
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ConvertToCsvAsync">Convert</MudButton>
         <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@ClearAsync">Clear</MudButton>
     </MudStack>
+    <MudStack>
+        <MudTextField @ref="_csvFilePathTextField"
+                      T="string"
+                      Label="CSV File Path"
+                      Variant="Variant.Outlined" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@SaveCsvFileAsync">Save</MudButton>
+    </MudStack>
 </MudStack>
 
 @code
 {
     private MudTextField<string> _jsonTextField;
     private MudTextField<string> _csvTextField;
-    private MudTextField<string> _jsonFilePathTextField;
+    private MudTextField<string> _csvFilePathTextField;
     private bool _jsonError;
     private string _jsonErrorText;
-
-    private async Task OpenCsvFileAsync()
-    {
-        await Task.CompletedTask;
-    }
 
     private async Task ConvertToCsvAsync() => await ConvertJsonAndSetCsvText(_jsonTextField.Text);
 
@@ -78,5 +82,12 @@
     {
         using var streamReader = new StreamReader(file.OpenReadStream());
         await _jsonTextField.SetText(await streamReader.ReadToEndAsync());
+    }
+
+    private async Task SaveCsvFileAsync()
+    {
+        var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(_csvTextField.Text));
+        using var dotNetStream = new DotNetStreamReference(stream: fileStream);
+        await JSRuntime.InvokeVoidAsync("downloadFileFromStream", _csvFilePathTextField.Text, dotNetStream);
     }
 }
