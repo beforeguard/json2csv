@@ -1,10 +1,11 @@
 ﻿@page "/"
 @using System.Text
 
-@inject JsonConverterService JsonConverterService
+@inject ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
+@inject JsonConverterService JsonConverterService
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Json2Csv</PageTitle>
 
 <MudStack>
     <MudText Typo="Typo.h4" GutterBottom="true">JSON to CSV Converter</MudText>
@@ -109,8 +110,15 @@
             return;
         }
 
-        var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(_csvTextField.Text));
-        using var dotNetStream = new DotNetStreamReference(stream: fileStream);
-        await JSRuntime.InvokeVoidAsync("downloadFileFromStream", _csvFileNameTextField.Text, dotNetStream);
+        try
+        {
+            var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(_csvTextField.Text));
+            using var dotNetStream = new DotNetStreamReference(stream: fileStream);
+            await JSRuntime.InvokeVoidAsync("downloadFileFromStream", _csvFileNameTextField.Text, dotNetStream);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving CSV file: {ex.Message}", Severity.Error);
+        }
     }
 }
